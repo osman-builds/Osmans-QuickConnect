@@ -1,0 +1,516 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Osman's QuickConnect - WiFi Access</title>
+  <!-- Tailwind CSS via CDN -->
+  <script src="https://cdn.tailwindcss.com" defer></script>
+  <style>
+    *, *::before, *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: 'Segoe UI', Inter, system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+      color: #ffffff;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    .font-mono-code {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+    }
+
+    /* Unique Deep Ocean Blue & Teal Gradient Theme */
+    .ocean-gradient-bg {
+      background:
+        radial-gradient(circle at 18% 20%, rgba(45, 212, 191, 0.28) 0%, transparent 45%),
+        radial-gradient(circle at 82% 80%, rgba(6, 182, 212, 0.30) 0%, transparent 50%),
+        linear-gradient(135deg, #021627 0%, #052c47 35%, #0a5872 70%, #0d9488 100%);
+      background-attachment: fixed;
+    }
+
+    /* Layout Helpers (instant zero-FOUC fallback for Tailwind utilities) */
+    .main-wrapper {
+      flex-grow: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 2.5rem 1rem;
+    }
+    .header-box {
+      text-align: center;
+      margin-bottom: 2rem;
+    }
+    .badge-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.3rem 0.9rem;
+      border-radius: 9999px;
+      background: rgba(45, 212, 191, 0.16);
+      border: 1px solid rgba(94, 234, 212, 0.35);
+      color: #99f6e4;
+      font-size: 0.75rem;
+      font-weight: 600;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      margin-bottom: 0.75rem;
+    }
+    .badge-dot {
+      width: 0.5rem;
+      height: 0.5rem;
+      border-radius: 9999px;
+      background: #5eead4;
+      display: inline-block;
+    }
+    .hero-title {
+      font-size: 2.75rem;
+      line-height: 1.15;
+      font-weight: 800;
+      letter-spacing: -0.025em;
+      color: #ffffff;
+      text-shadow: 0 2px 12px rgba(2, 22, 39, 0.4);
+    }
+    .hero-accent {
+      color: #5eead4;
+    }
+    .hero-subtitle {
+      color: rgba(204, 251, 241, 0.88);
+      font-size: 1rem;
+      margin-top: 0.5rem;
+    }
+
+    /* Glassmorphism Card */
+    .glass-card {
+      width: 100%;
+      max-width: 28rem;
+      background: rgba(255, 255, 255, 0.12);
+      backdrop-filter: blur(22px);
+      -webkit-backdrop-filter: blur(22px);
+      border: 1px solid rgba(255, 255, 255, 0.24);
+      box-shadow: 0 25px 50px -12px rgba(2, 18, 34, 0.65);
+      border-radius: 1.5rem;
+      padding: 2rem;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .card-top-bar {
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 6px;
+      background: linear-gradient(90deg, #22d3ee 0%, #5eead4 50%, #34d399 100%);
+    }
+
+    .form-stack > * + * {
+      margin-top: 1.25rem;
+    }
+
+    .field-label {
+      display: block;
+      font-size: 0.875rem;
+      font-weight: 600;
+      color: #f0fdfa;
+      margin-bottom: 0.5rem;
+    }
+
+    /* Glassmorphism Input */
+    .glass-input {
+      width: 100%;
+      padding: 0.875rem 1rem;
+      border-radius: 0.75rem;
+      color: #ffffff;
+      font-size: 0.95rem;
+      background: rgba(3, 25, 44, 0.45);
+      border: 1px solid rgba(153, 246, 228, 0.30);
+      transition: all 0.2s ease;
+    }
+    .glass-input::placeholder {
+      color: rgba(153, 246, 228, 0.45);
+    }
+    .glass-input:focus {
+      outline: none;
+      background: rgba(3, 25, 44, 0.65);
+      border-color: #5eead4;
+      box-shadow: 0 0 0 3px rgba(45, 212, 191, 0.25);
+    }
+
+    .submit-button {
+      width: 100%;
+      padding: 0.9rem 1.5rem;
+      border-radius: 0.75rem;
+      font-weight: 700;
+      font-size: 1rem;
+      background: #ffffff;
+      color: #04293A;
+      border: none;
+      cursor: pointer;
+      box-shadow: 0 10px 25px -5px rgba(2, 18, 34, 0.4);
+      transition: all 0.2s ease;
+    }
+    .submit-button:hover {
+      background: #f0fdfa;
+      transform: translateY(-1px);
+    }
+
+    .error-box {
+      border-radius: 0.75rem;
+      background: rgba(244, 63, 94, 0.28);
+      border: 1px solid rgba(253, 164, 175, 0.5);
+      padding: 0.75rem 1rem;
+      font-size: 0.875rem;
+      color: #ffe4e6;
+      font-weight: 600;
+      text-align: center;
+    }
+
+    .qr-frame {
+      margin: 1.5rem auto;
+      background: #ffffff;
+      padding: 1rem;
+      border-radius: 1rem;
+      box-shadow: 0 15px 30px -10px rgba(2, 18, 34, 0.45);
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .qr-img {
+      width: 216px;
+      height: 216px;
+      object-fit: contain;
+      display: block;
+    }
+
+    .creds-box {
+      background: rgba(2, 18, 34, 0.38);
+      border: 1px solid rgba(153, 246, 228, 0.22);
+      border-radius: 1rem;
+      padding: 1rem 1.25rem;
+      text-align: left;
+    }
+    .creds-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 0.75rem;
+    }
+    .creds-row-top {
+      border-bottom: 1px solid rgba(153, 246, 228, 0.16);
+      padding-bottom: 0.65rem;
+      margin-bottom: 0.65rem;
+    }
+    .creds-label {
+      font-size: 0.75rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      color: rgba(153, 246, 228, 0.78);
+    }
+    .creds-value {
+      font-weight: 700;
+      color: #ffffff;
+      font-size: 0.95rem;
+    }
+
+    /* Glassmorphism Action Buttons */
+    .action-grid {
+      width: 100%;
+      max-width: 28rem;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1rem;
+      margin-top: 1.25rem;
+    }
+    .glass-btn {
+      background: rgba(255, 255, 255, 0.15);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border: 1px solid rgba(255, 255, 255, 0.28);
+      border-radius: 0.75rem;
+      padding: 0.8rem 1.25rem;
+      font-weight: 600;
+      font-size: 0.9rem;
+      color: #ffffff;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+    .glass-btn:hover {
+      background: rgba(255, 255, 255, 0.25);
+      transform: translateY(-1px);
+    }
+
+    .footer-bar {
+      width: 100%;
+      padding: 1rem;
+      text-align: center;
+      border-top: 1px solid rgba(153, 246, 228, 0.16);
+      background: rgba(2, 18, 34, 0.35);
+      backdrop-filter: blur(10px);
+      font-size: 0.875rem;
+      color: rgba(204, 251, 241, 0.92);
+      font-weight: 500;
+    }
+
+    .hidden {
+      display: none !important;
+    }
+
+    /* Print Styles for Printable Guest Card */
+    @media print {
+      body {
+        background: #ffffff !important;
+        color: #021627 !important;
+      }
+      .no-print {
+        display: none !important;
+      }
+      #guest-card-container {
+        display: flex !important;
+        margin: 0 auto !important;
+      }
+      #printable-card {
+        background: #063954 !important;
+        color: #ffffff !important;
+        border: 2px solid #0d9488 !important;
+        box-shadow: none !important;
+        -webkit-print-color-adjust: exact !important;
+        print-color-adjust: exact !important;
+      }
+    }
+  </style>
+</head>
+<body class="ocean-gradient-bg min-h-screen flex flex-col justify-between text-white antialiased">
+
+  <!-- Main Centered Content -->
+  <main class="main-wrapper flex-grow flex flex-col items-center justify-center px-4 py-10">
+
+    <!-- App Header (Uses Osman's Name & Title) -->
+    <div class="header-box text-center mb-8 no-print">
+      <div class="badge-pill">
+        <span class="badge-dot"></span>
+        <span>Osman's WiFi Portal</span>
+      </div>
+      <h1 class="hero-title text-4xl sm:text-5xl font-extrabold tracking-tight text-white">
+        Osman's <span class="hero-accent text-teal-300">QuickConnect</span>
+      </h1>
+      <p class="hero-subtitle text-teal-100/85 text-sm sm:text-base mt-2">
+        Osman's Secure WiFi Access - Scan to join instantly
+      </p>
+    </div>
+
+    <!-- VIEW 1: Glassmorphism Form Card -->
+    <div id="form-container" class="glass-card w-full max-w-md rounded-3xl p-7 sm:p-8 relative overflow-hidden">
+      <div class="card-top-bar"></div>
+
+      <form id="wifi-form" class="form-stack space-y-5" novalidate>
+        <div>
+          <label for="ssid" class="field-label block text-sm font-semibold text-teal-50 mb-2">
+            Network Name (SSID)
+          </label>
+          <input
+            type="text"
+            id="ssid"
+            name="ssid"
+            placeholder="e.g. Osman-Home-5G"
+            autocomplete="off"
+            class="glass-input w-full px-4 py-3.5 rounded-xl text-white text-sm sm:text-base"
+          />
+        </div>
+
+        <div>
+          <label for="password" class="field-label block text-sm font-semibold text-teal-50 mb-2">
+            Password
+          </label>
+          <input
+            type="password"
+            id="password"
+            name="password"
+            placeholder="••••••••••••"
+            autocomplete="off"
+            class="glass-input w-full px-4 py-3.5 rounded-xl text-white text-sm sm:text-base"
+          />
+        </div>
+
+        <!-- Validation / Backend Error Message -->
+        <div
+          id="error-message"
+          role="alert"
+          class="error-box hidden"
+        ></div>
+
+        <button
+          type="submit"
+          id="submit-btn"
+          class="submit-button w-full py-3.5 px-6 rounded-xl font-bold text-base"
+        >
+          Generate QuickConnect Pass
+        </button>
+      </form>
+    </div>
+
+    <!-- VIEW 2: Printable Guest Card UI (Shown on Submit) -->
+    <div id="guest-card-container" class="hidden w-full max-w-md flex flex-col items-center">
+      <!-- The Printable Guest Card -->
+      <div
+        id="printable-card"
+        class="glass-card w-full rounded-3xl p-7 sm:p-8 text-center relative overflow-hidden"
+        style="text-align: center;"
+      >
+        <div class="card-top-bar"></div>
+
+        <h2 class="text-2xl font-bold text-white tracking-tight mt-1" style="font-size: 1.5rem; font-weight: 700;">
+          Osman's WiFi Guest Pass
+        </h2>
+        <p id="card-subtitle" class="text-sm text-teal-100/90 mt-1 font-medium" style="color: #ccfbf1; font-size: 0.875rem; margin-top: 0.35rem;">
+          Osman's Secure WiFi Access - Scan to join instantly
+        </p>
+
+        <!-- QR Code Box (In-Memory Base64 Image) -->
+        <div class="qr-frame">
+          <img
+            id="qr-image"
+            src=""
+            alt="WiFi QR Code"
+            class="qr-img"
+          />
+        </div>
+
+        <!-- Credentials Box -->
+        <div class="creds-box">
+          <div class="creds-row creds-row-top">
+            <span class="creds-label">NETWORK</span>
+            <span id="display-ssid" class="creds-value"></span>
+          </div>
+          <div class="creds-row">
+            <span class="creds-label">PASSWORD</span>
+            <span id="display-password" class="creds-value font-mono-code" style="color: #99f6e4;"></span>
+          </div>
+        </div>
+
+        <p style="font-size: 0.78rem; color: rgba(204, 251, 241, 0.8); margin-top: 1.25rem;">
+          Enjoy your visit! &bull; Built by Osman Abdullahi Ahmed
+        </p>
+      </div>
+
+      <!-- Action Buttons Below Card -->
+      <div class="action-grid no-print">
+        <button
+          type="button"
+          id="print-btn"
+          class="glass-btn"
+        >
+          Print Card
+        </button>
+        <button
+          type="button"
+          id="create-new-btn"
+          class="glass-btn"
+        >
+          Create New
+        </button>
+      </div>
+    </div>
+
+  </main>
+
+  <!-- Explicit Required Footer -->
+  <footer class="footer-bar">
+    <p>
+      Built by Osman Abdullahi Ahmed - ID BSW01085171
+    </p>
+  </footer>
+
+  <script>
+    const wifiForm = document.getElementById('wifi-form');
+    const ssidInput = document.getElementById('ssid');
+    const passwordInput = document.getElementById('password');
+    const submitBtn = document.getElementById('submit-btn');
+    const errorMessage = document.getElementById('error-message');
+
+    const formContainer = document.getElementById('form-container');
+    const guestCardContainer = document.getElementById('guest-card-container');
+    const qrImage = document.getElementById('qr-image');
+    const displaySsid = document.getElementById('display-ssid');
+    const displayPassword = document.getElementById('display-password');
+
+    const printBtn = document.getElementById('print-btn');
+    const createNewBtn = document.getElementById('create-new-btn');
+
+    function showError(msg) {
+      errorMessage.textContent = msg;
+      errorMessage.classList.remove('hidden');
+    }
+
+    function clearError() {
+      errorMessage.textContent = '';
+      errorMessage.classList.add('hidden');
+    }
+
+    wifiForm.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      clearError();
+
+      const ssid = ssidInput.value.trim();
+      const password = passwordInput.value;
+
+      if (!ssid) {
+        showError('Error: Network Name (SSID) is required.');
+        return;
+      }
+
+      submitBtn.disabled = true;
+      submitBtn.textContent = 'Generating...';
+
+      try {
+        const response = await fetch('/api/generate', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ ssid, password, encryption: password ? 'WPA' : 'nopass' }),
+        });
+
+        const data = await response.json();
+
+        if (!response.ok || !data.qrCode) {
+          throw new Error(data.error || 'Failed to generate QR code.');
+        }
+
+        // Populate Guest Card with in-memory Base64 QR Code
+        qrImage.src = data.qrCode;
+        displaySsid.textContent = ssid;
+        displayPassword.textContent = password || 'No Password (Open)';
+
+        // Switch from Form to Guest Card view
+        formContainer.classList.add('hidden');
+        guestCardContainer.classList.remove('hidden');
+      } catch (err) {
+        showError(err.message || 'Error generating WiFi QR code.');
+      } finally {
+        submitBtn.disabled = false;
+        submitBtn.textContent = 'Generate QuickConnect Pass';
+      }
+    });
+
+    printBtn.addEventListener('click', () => {
+      window.print();
+    });
+
+    createNewBtn.addEventListener('click', () => {
+      qrImage.src = '';
+      clearError();
+      guestCardContainer.classList.add('hidden');
+      formContainer.classList.remove('hidden');
+      ssidInput.focus();
+    });
+  </script>
+</body>
+</html>
